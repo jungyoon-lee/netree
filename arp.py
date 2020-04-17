@@ -1,5 +1,6 @@
-from packet import ArpPacket, EthernetPacket
+from base import Base
 from network import MyInfo
+from packet import ArpPacket, EthernetPacket
 from tm import ThreadManager
 
 from ipaddress import IPv4Address
@@ -7,9 +8,12 @@ from socket import socket, AF_PACKET, SOCK_RAW, htons, error
 
 from operator import itemgetter # sorted
 
+from time import sleep
+
 
 class ArpScan:
     def __init__(self, myinfo : MyInfo):
+        self.base = Base()
         self.arp = ArpPacket()
         self.eth = EthernetPacket()
         self.myinfo = myinfo
@@ -22,6 +26,8 @@ class ArpScan:
         self.real_results = list()
         self.ip_addresses = list()
         self.mac_addresses = list()
+
+        self.timeout = 10
 
 
     def sniff(self):
@@ -100,11 +106,22 @@ class ArpScan:
 
         self.send()
 
+        sleep(self.timeout)
+
+        self.results.append({
+            'mac-address': self.myinfo.mac,
+            'ip-address': self.myinfo.ip
+        })
+
         for idx in range(len(self.results)):
             if self.results[idx]['mac-address'] not in self.mac_addresses:
                 self.mac_addresses.append(self.results[idx]['mac-address'])
                 self.real_results.append(self.results[idx])
 
         self.real_results = sorted(self.real_results, key=itemgetter('ip-address'))
+
+        for result_idx in range(len(self.real_results)):
+            self.real_results[result_idx]['product'] = \
+                self.base.get_vendor_by_mac_address(self.real_results[result_idx]['mac-address'])
 
         return self.real_results
