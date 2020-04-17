@@ -1,5 +1,6 @@
-from packet import ArpPacket
+from packet import ArpPacket, EthernetPacket
 from network import MyInfo
+from tm import ThreadManager
 
 from ipaddress import IPv4Address
 from socket import socket, AF_PACKET, SOCK_RAW, htons, error
@@ -7,13 +8,50 @@ from socket import socket, AF_PACKET, SOCK_RAW, htons, error
 
 class ArpScan:
     def __init__(self, myinfo : MyInfo):
-        self.arp = ArpPacket()    
-        self.myinfo : MyInfo = myinfo
+        self.arp = ArpPacket()
+        self.eth = EthernetPacket()
+        self.myinfo = myinfo
+
+        self.rawSocket: socket = socket(AF_PACKET, SOCK_RAW, htons(0x0003))
 
         self.retries = 3
         self.arp_requests = list()
         self.results = list()
         self.ip_addresses = list()
+
+
+    def sniff(self):
+        while True:
+            packets = self.rawSocket.recvfrom(2048)
+            for packet in packets:
+                try:
+                    ethernet_header = packet[0:14]
+                    ethernet_header_dict = self.eth.parse_packet(ethernet_header)
+
+                    assert ethernet_header_dict is not None, 'ethernet packet 실종'
+                    
+                    assert ethernet_header_dict['type'] == 2054, 'arp packet 아님'
+
+                    assert ethernet_header_dict['destination'] == self.myinfo.mac.lower(), '너한테 보내진거 아님'
+                    
+                    arp_header = packet[14:42]
+                    arp_header_dict = self.arp.parse_packet(arp_header)
+
+                    assert arp_header_dict is not None, 'ARP packet 실종'
+
+                    assert arp_header_dict['opcode'] == 2, 'Not ARP reply packet!'
+
+                    assert arp_header_dict['target-mac'] == self.myinfo.mac.lower(), 'Not your ARP reply packet!'
+                    
+                    assert arp_header_dict['target-ip'] == self.myinfo.ip, 'Not your ARP reply packet!'
+                    
+                    self.results.append({
+                        'mac-address': arp_header_dict['sender-mac'],
+                        'ip-address': arp_header_dict['sender-ip']
+                    })
+                        
+                except AssertionError:
+                    pass
 
 
     def send(self):
@@ -51,4 +89,9 @@ class ArpScan:
 
         self.arp_requests = self.arp.make_requests(target_ip_addresses=self.ip_addresses)
 
+        tm = ThreadManager(2)
+        tm.add_task(self.sniff)
+
         self.send()
+
+        return self.results
