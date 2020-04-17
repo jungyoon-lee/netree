@@ -7,7 +7,18 @@ from netaddr import IPNetwork, IPAddress
 
 from uuid import getnode
 
+
 class MyInfo:
+    def __init__(self):
+        self.os = self.get_os()
+        self.network_interface = self.get_network_interface_list()
+        self.mac = self.get_mac_address()
+        self.ip = self.get_ip_address()
+
+        self.subnetmask = self.get_subnetmask()
+        self.prefix = self.get_prefix()
+        
+
     def get_os(self):
         return system() + ' ' + release()
 
@@ -26,28 +37,22 @@ class MyInfo:
         return mac
 
     
-    def get_ip_address(self, 
-                       interface_name):
-        return str(ifaddresses(interface_name)[AF_INET][0]['addr'])
+    def get_ip_address(self):
+        return str(ifaddresses(self.network_interface)[AF_INET][0]['addr'])
 
     
-    def get_subnetmask(self, 
-                       interface_name):
-        return str(ifaddresses(interface_name)[AF_INET][0]['netmask'])
+    def get_subnetmask(self):
+        return str(ifaddresses(self.network_interface)[AF_INET][0]['netmask'])
 
 
-    def get_prefix(self, 
-                   interface_name):
-        netmask = self.get_subnetmask(interface_name)
-        ip_address = self.get_ip_address(interface_name)
+    def get_prefix(self):
+        netmask = self.subnetmask
 
-        ip = IPNetwork(ip_address + '/' + netmask)
+        ip = IPNetwork(self.ip + '/' + netmask)
         
         return str(ip[0]) + '/' + str(IPAddress(netmask).netmask_bits())
 
 
-    def get_ip_by_index(self, 
-                        interface_name,
-                        index=1):
-        network: IPNetwork = IPNetwork(self.get_prefix(interface_name))
+    def get_ip_by_index(self, index=1):
+        network: IPNetwork = IPNetwork(self.get_prefix())
         return str(network[index])
