@@ -3,6 +3,8 @@ from network import MyInfo
 from arp import ArpScan
 from packet import ArpPacket
 
+from prettytable import PrettyTable
+
 
 if __name__ == '__main__':
     base = Base()
@@ -22,4 +24,10 @@ if __name__ == '__main__':
 
     results = arp.scan()
 
-    
+    pretty_table = PrettyTable(['IP Address', 'MAC Address'])
+        
+    for result in results:
+        pretty_table.add_row([result['ip-address'], result['mac-address']])
+
+
+    print(pretty_table)

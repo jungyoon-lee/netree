@@ -5,6 +5,8 @@ from tm import ThreadManager
 from ipaddress import IPv4Address
 from socket import socket, AF_PACKET, SOCK_RAW, htons, error
 
+from operator import itemgetter # sorted
+
 
 class ArpScan:
     def __init__(self, myinfo : MyInfo):
@@ -17,7 +19,9 @@ class ArpScan:
         self.retries = 3
         self.arp_requests = list()
         self.results = list()
+        self.real_results = list()
         self.ip_addresses = list()
+        self.mac_addresses = list()
 
 
     def sniff(self):
@@ -67,6 +71,8 @@ class ArpScan:
 
     def scan(self):
         self.results.clear()
+        self.real_results.clear()
+        self.mac_addresses.clear()
         self.arp_requests.clear()
 
         last_ip = self.myinfo.get_ip_by_index(-2)
@@ -94,4 +100,11 @@ class ArpScan:
 
         self.send()
 
-        return self.results
+        for idx in range(len(self.results)):
+            if self.results[idx]['mac-address'] not in self.mac_addresses:
+                self.mac_addresses.append(self.results[idx]['mac-address'])
+                self.real_results.append(self.results[idx])
+
+        self.real_results = sorted(self.real_results, key=itemgetter('ip-address'))
+
+        return self.real_results
