@@ -17,6 +17,9 @@ class MyInfo:
 
         self.subnetmask = self.get_subnetmask()
         self.prefix = self.get_prefix()
+
+        self.gateway_ip = self.get_gateway_info()[0]
+        self.gateway_network_interface = self.get_gateway_info()[1]
         
 
     def get_os(self):
@@ -27,6 +30,12 @@ class MyInfo:
         # 여러개 일 경우도 해야될 듯
         # lo 없애는거 해야될 듯
         return interfaces()[1]
+
+    
+    def get_gateway_info(self):
+        default = gateways()['default']
+
+        return default[2]
 
     
     # def get_mac_address(self):

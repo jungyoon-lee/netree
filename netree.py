@@ -13,21 +13,23 @@ if __name__ == '__main__':
 
     base.print_banner()
 
-    print('My Network Interface: ', myinfo.network_interface)
+    print('My Network Interface      :', myinfo.network_interface)
+    print('My IP Address             :', myinfo.ip)
+    print('My MAC Address            :', myinfo.mac)
 
-    print('My IP Address:        ', myinfo.ip)
-    print('My MAC Address:       ', myinfo.mac)
+    print('\nGateway Network Interface :', myinfo.gateway_network_interface)
+    print('Gateway IP Address        :', myinfo.gateway_ip)
+    print('Gateway MAC Address       :', myinfo.gateway_ip)
 
-    print('Useable IP:           ', myinfo.get_ip_by_index(1),
-                                 '~',
-                                  myinfo.get_ip_by_index(-2))
+    print('Useable IP                :', myinfo.get_ip_by_index(2),
+                                     '~',
+                                     myinfo.get_ip_by_index(-2))
 
     results = arp.scan()
 
-    pretty_table = PrettyTable(['IP Address', 'MAC Address'])
+    result_table = PrettyTable(['IP Address', 'MAC Address', 'Product'])
         
     for result in results:
-        pretty_table.add_row([result['ip-address'], result['mac-address']])
+        result_table.add_row([result['ip-address'], result['mac-address'], result['product']])
 
-
-    print(pretty_table)
+    print(result_table)
