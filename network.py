@@ -7,11 +7,13 @@ from netaddr import IPNetwork, IPAddress
 
 from uuid import getnode
 
+from prettytable import PrettyTable
+
 
 class MyInfo:
     def __init__(self):
         self.os = self.get_os()
-        self.network_interface = self.get_network_interface_list()
+        self.network_interface = self.choose_network_interface()
         self.mac = self.get_mac_address()
         self.ip = self.get_ip_address()
 
@@ -19,17 +21,33 @@ class MyInfo:
         self.prefix = self.get_prefix()
 
         self.gateway_ip = self.get_gateway_info()[0]
-        self.gateway_network_interface = self.get_gateway_info()[1]
         
 
     def get_os(self):
         return system() + ' ' + release()
 
 
-    def get_network_interface_list(self):
-        # 여러개 일 경우도 해야될 듯
-        # lo 없애는거 해야될 듯
-        return interfaces()[1]
+    def choose_network_interface(self):
+        lan_cards = interfaces()[1:]
+
+        lan_card_table = PrettyTable(['Index', 'Lan Card', 'IP Address'])
+
+        idxes = list()
+        for idx, lan_card in enumerate(lan_cards):
+            idxes.append(idx)
+
+            ip = ifaddresses(lan_card)[AF_INET][0]['addr']
+            lan_card_table.add_row([idx, lan_card, ip])
+
+        print(lan_card_table)
+
+        while True:
+            choose_idx = int(input('Input Index : '))
+            
+            if choose_idx in idxes:
+                break   
+
+        return lan_cards[choose_idx]
 
     
     def get_gateway_info(self):
@@ -38,12 +56,9 @@ class MyInfo:
         return default[2]
 
     
-    # def get_mac_address(self):
-    #     interface_name = self.get_network_interface()
-    #     return str(ifaddresses(interface_name)[AF_LINK][0]['addr'])
     def get_mac_address(self):
-        mac = ':'.join(("%012X" % getnode())[i : i + 2] for i in range(0, 12, 2))
-        return mac
+        interface_name = self.network_interface
+        return str(ifaddresses(interface_name)[AF_LINK][0]['addr'])
 
     
     def get_ip_address(self):
