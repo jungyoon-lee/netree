@@ -30,16 +30,20 @@ class MyInfo:
     def choose_network_interface(self):
         lan_cards = interfaces()[1:]
 
-        lan_card_table = PrettyTable(['Index', 'Lan Card', 'IP Address'])
+        lan_card_table = PrettyTable(['Index', 'Lan Card', 'IP Address', 'MAC Address'])
 
         idxes = list()
         for idx, lan_card in enumerate(lan_cards):
             idxes.append(idx)
 
             ip = ifaddresses(lan_card)[AF_INET][0]['addr']
-            lan_card_table.add_row([idx, lan_card, ip])
+            mac = ifaddresses(lan_card)[AF_LINK][0]['addr']
+            lan_card_table.add_row([idx, lan_card, ip, mac])
 
         print(lan_card_table)
+
+        if len(lan_cards) == 1:
+            return lan_cards[0]
 
         while True:
             choose_idx = int(input('Input Index : '))
