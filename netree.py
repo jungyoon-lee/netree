@@ -26,7 +26,6 @@ if __name__ == '__main__':
                                      '~',
                                      myinfo.get_ip_by_index(-2))
 
-
     # print('\nDNS Server IP Address     :', '0.0.0.0')
 
     start_arp_scan = time()
@@ -39,11 +38,9 @@ if __name__ == '__main__':
         brother_table.add_row([brother['ip-address'], brother['mac-address'], brother['product']])
 
     print(brother_table)
-    print(int(end_arp_scan - start_arp_scan), '초')
+    print(int(end_arp_scan - start_arp_scan), 'sec')
     
-    grand_mother = icmp.scan_grandmother()
+    grand_mother_ip = icmp.scan_grandmother()
 
-    results = icmp.scan_mother_brothers(grand_mother)
+    mother_brothers, router_address = icmp.scan_mother_brothers(grand_mother_ip)
     
-    print('\nmother\' brothers')
-    [print(result) for result in results]

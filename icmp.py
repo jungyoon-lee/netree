@@ -12,7 +12,7 @@ class IcmpScan:
     def __init__(self):
         self.live_addresses = list()
         self.receive_finish = False
-
+        self.router_address = None
 
     def receive(self):
         port = 55285
@@ -22,19 +22,15 @@ class IcmpScan:
         rece_socket.setsockopt(SOL_SOCKET, SO_RCVTIMEO, timeout)
         rece_socket.bind(("", port))
 
-        start_time = time()
-
         while True:
-            current_time = time()
-            if (current_time - start_time) > 5:
-                break
-
             try:
                 _, curr_addr = rece_socket.recvfrom(512)
-                # print(_)
-                
+
                 if curr_addr[0] not in self.live_addresses:
                     self.live_addresses.append(curr_addr[0])
+                else:
+                    self.router_address = curr_addr[0]
+                    break
 
             except Exception as error:
                 pass
@@ -75,7 +71,7 @@ class IcmpScan:
 
         while True:
             if self.receive_finish == True:
-                return self.live_addresses
+                return self.live_addresses, self.router_address
 
 
     def scan_grandmother(self):
