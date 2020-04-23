@@ -46,10 +46,13 @@ class MyInfo:
             return lan_cards[0]
 
         while True:
-            choose_idx = int(input('Input Index : '))
-            
-            if choose_idx in idxes:
-                break   
+            try:
+                choose_idx = int(input('Choose Index : '))
+                
+                if choose_idx in idxes:
+                    break
+            except Exception as error:
+                print('INPUT NUMBER ( 0 ~ ', len(idxes)-1, ')')
 
         return lan_cards[choose_idx]
 
