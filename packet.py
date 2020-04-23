@@ -1,10 +1,11 @@
-from struct import pack, unpack, error as struct_error
+from struct import pack, unpack, calcsize, error as struct_error
 
-from socket import error as sock_error, inet_aton, inet_ntoa, inet_pton, htons, IPPROTO_TCP, IPPROTO_UDP, AF_INET6
-from socket import socket, AF_PACKET, SOCK_RAW, inet_ntop, IPPROTO_ICMPV6
-
+from socket import socket, SOCK_RAW, IPPROTO_UDP, error, htons, inet_ntoa
 from binascii import unhexlify
 from ipaddress import IPv4Address
+
+from time import time
+import os
 
 
 def trans_bytes_mac(mac_address='01:23:34:45:56:67'):
@@ -142,3 +143,78 @@ class ArpPacket:
 
         except IndexError:
             pass
+
+
+class IcmpPacket:
+#     0                   1                   2                   3
+#     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    |     Type(8)   |     Code(0)   |          Checksum             |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    |           Identifier          |        Sequence Number        |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    |                          Payload = Data                       |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    def __init__(self):
+        self.type = 8 # request-8, reply-0
+        self.code = 0
+        self.checksum = 0
+        self.identifier = os.getpid() & 0xFFFF
+        self.sequence = 1
+        
+
+    def make_checksum(self, source_string):
+        sum = 0
+        countTo = (len(source_string)/2)*2
+        count = 0
+        while count<countTo:
+            thisVal = source_string[count + 1] * 256 + source_string[count]
+            sum = sum + thisVal
+            sum = sum & 0xffffffff # Necessary?
+            count = count + 2
+
+        if countTo<len(source_string):
+            sum = sum + source_string[len(source_string) - 1]
+            sum = sum & 0xffffffff # Necessary?
+
+        sum = (sum >> 16)  +  (sum & 0xffff)
+        sum = sum + (sum >> 16)
+        answer = ~sum
+        answer = answer & 0xffff
+
+        # Swap bytes. Bugger me if I know why.
+        answer = answer >> 8 | (answer << 8 & 0xff00)
+
+        return answer
+
+
+    def make_data(self):
+        bytesInDouble = calcsize("d")
+        data = bytes((192 - bytesInDouble) * "Q", 'utf-8')
+        data = pack("d", time()) + data
+
+        return data
+
+
+    def make_header(self):
+        header = b''
+        header += pack("b", self.type)
+        header += pack("b", self.code)
+        header += pack("H", self.checksum)
+        header += pack("H", self.identifier)
+        header += pack("h", self.sequence)
+
+        return header
+
+
+    def make_packet(self):
+        header = self.make_header()
+        data   = self.make_data()
+
+        my_checksum = self.make_checksum(header + data)
+
+        self.checksum = htons(my_checksum)
+        
+        new_header = self.make_header()
+
+        return new_header + data
