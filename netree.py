@@ -37,7 +37,8 @@ if __name__ == '__main__':
         brother_table.add_row([brother['ip-address'], brother['mac-address'], brother['product']])
     
     grandmother_ip = icmp.scan_grandmother()
-    
+    mother_brothers_table = PrettyTable(['IP Address'])
+
     if grandmother_ip is None:
         grandmother_ip = '   NOT FOUND'
         mother_brothers = list()
@@ -45,7 +46,6 @@ if __name__ == '__main__':
     else:
         mother_brothers, grand_router_address = icmp.scan_mother_brothers(grandmother_ip)
 
-        mother_brothers_table = PrettyTable(['IP Address'])
         for brother in mother_brothers:
             mother_brothers_table.add_row([brother])
 

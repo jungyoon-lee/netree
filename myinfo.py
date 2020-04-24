@@ -36,8 +36,16 @@ class MyInfo:
         for idx, lan_card in enumerate(lan_cards):
             idxes.append(idx)
 
-            ip = ifaddresses(lan_card)[AF_INET][0]['addr']
-            mac = ifaddresses(lan_card)[AF_LINK][0]['addr']
+            try:
+                ip = ifaddresses(lan_card)[AF_INET][0]['addr']
+            except Exception as error:
+                print(error)
+
+            try:
+                mac = ifaddresses(lan_card)[AF_LINK][0]['addr']
+            except Exception as error:
+                print(error)
+
             lan_card_table.add_row([idx, lan_card, ip, mac])
 
         print(lan_card_table)
