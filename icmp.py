@@ -79,6 +79,7 @@ class IcmpScan:
         curr_addr = None
         port = 55285
         ttl = 2
+        error_count = 0
 
         rece_socket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)
         send_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)
@@ -90,7 +91,16 @@ class IcmpScan:
 
         send_socket.sendto(bytes("", "utf-8"), (dest_name, port))
 
-        _, curr_addr = rece_socket.recvfrom(512)
+        while True:
+            if error_count > 5:
+                rece_socket.close()
+                send_socket.close()
+                return None
+            try:
+                _, curr_addr = rece_socket.recvfrom(512)
+                break
+            except Exception as error:
+                error_count += 1 
 
         rece_socket.close()
         send_socket.close()

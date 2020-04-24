@@ -78,100 +78,110 @@ class Tree:
     def printTree(self):
         self.prtGrandmother(ip1=self.grandmother_ip1, 
                             ip2=self.grandmother_ip2, 
-                            start_pot=self.start_pot1)
+                            start_pot1=self.start_pot1,
+                            start_pot2=self.start_pot2,
+                            sons=self.mother_brothers)
         self.prtMother(ip1=self.mother1, 
                        ip2=self.mother2, 
                        brothers=self.mother_brothers, 
-                       start_pot=self.start_pot2)
+                       start_pot=self.start_pot2,
+                       sons=self.brothers)
         self.prtBrothers(brothers=self.brothers)
 
+    '''
+                                                       ///////////////// 
+                                                       /               /
+                                                       /               /
+                                                       /////////////////
+                                                               |
+                                                               |
+                                            +------------------+------------------+
+                                            |                  |                  |
+                                            |                  |                  |
 
-    def prtGrandmother(self, ip1, ip2, start_pot):
-        '''
-         ///////////////// 
-         /               /
-         /               /
-         /////////////////
-        '''
+    '''
+    def prtGrandmother(self, ip1, ip2, start_pot1, start_pot2, sons):
         router_top    = " ///////////////// "
         router_middle = " /               / "
         router_bottom = " ///////////////// "
+        bar           = "         |         "
 
-        # top
+        # region top
         print('')
-        stdout.write(' ' * start_pot)
+        stdout.write(' ' * start_pot1)
         stdout.write(router_top)
 
         # middle
             # outer
         print('')
-        stdout.write(' ' * start_pot)
+        stdout.write(' ' * start_pot1)
         stdout.write(router_middle[:2])
         stdout.write(ip1)
         stdout.write(router_middle[len(ip1) + 2:])
             # router
         print('')
-        stdout.write(' ' * start_pot)
+        stdout.write(' ' * start_pot1)
         stdout.write(router_middle[:2])
         stdout.write(ip2)
         stdout.write(router_middle[len(ip2) + 2:])
 
         # bottom
         print('')
-        stdout.write(' ' * start_pot)
+        stdout.write(' ' * start_pot1)
         stdout.write(router_bottom)
+        # endregion top
+        
+        #          |
+        #          |
+        print('')
+        stdout.write(' ' * start_pot2)
+        stdout.write(' ' * int((len(sons) + 1) * 19 / 2))
+        stdout.write('|')
+        print('')
+        stdout.write(' ' * start_pot2)
+        stdout.write(' ' * int((len(sons) + 1) * 19 / 2))
+        stdout.write('|')
+
+        #     +----+----+
+        if len(sons) > 0:
+            print('')
+            stdout.write(' ' * (start_pot2 + 9))
+            stdout.write('+')
+            for _ in range(len(sons)):
+                stdout.write('-' * 18 + '+')
+            # |    |    |     
+            # |    |    |
+            print('')
+            stdout.write(' ' * start_pot2)
+            for _ in range(len(sons) + 1):
+                stdout.write(bar)
+            print('')
+            stdout.write(' ' * start_pot2)
+            for _ in range(len(sons) + 1):
+                stdout.write(bar)
 
 
-    def prtMother(self, ip1, ip2, brothers, start_pot):
-        '''
-                                                        |
-                                                        |
-                            +------------------+------------------+------------------+
-        |---------|         |                  |                  |                  |
-         start pot          |                  |                  |                  |
-                    /////////////////  +-------+-------+  +-------+-------+  +-------+-------+ 
-                    /               /  |               |  |               |  |               |
-                    /               /  |               |  |               |  |               |
-                    /////////////////  +-------+-------+  +-------+-------+  +-------+-------+ 
-        '''
+    '''
+                                   /////////////////  +-------+-------+  +-------+-------+  
+                                   /               /  |               |  |               | 
+                                   /               /  |               |  |               |  
+                                   /////////////////  +-------+-------+  +-------+-------+  
+                                            |
+                                            |
+                +------------------+------------------+------------------+
+                |                  |                  |                  |
+                |                  |                  |                  |
+    '''
+    def prtMother(self, ip1, ip2, brothers, start_pot, sons):
         bar           = "         |         "
-
         router_top    = " ///////////////// "
         router_middle = " /               / "
         router_bottom = " ///////////////// "
-
         device_top    = " +-------+-------+ "
         device_middle = " |               | "
         device_bottom = " +---------------+ "
 
-        #
-        print('')
-        stdout.write(' ' * start_pot)
-        stdout.write(' ' * int((len(brothers) + 1) * 19 / 2))
-        stdout.write('|')
-        print('')
-        stdout.write(' ' * start_pot)
-        stdout.write(' ' * int((len(brothers) + 1) * 19 / 2))
-        stdout.write('|')
-
-        # +----+----+
-        print('')
-        stdout.write(' ' * (start_pot + 9))
-        stdout.write('+')
-        for _ in range(len(brothers)):
-            stdout.write('-' * 18 + '+')
-
-        # bar
-        print('')
-        stdout.write(' ' * start_pot)
-        for _ in range(len(brothers) + 1):
-            stdout.write(bar)
-        print('')
-        stdout.write(' ' * start_pot)
-        for _ in range(len(brothers) + 1):
-            stdout.write(bar)
-
-        # top
+        # region top
         print('')
         stdout.write(' ' * start_pot)
         stdout.write(router_top)
@@ -210,44 +220,39 @@ class Tree:
             # device
         for _ in brothers:
             stdout.write(device_bottom)
-
-
-    def prtBrothers(self, brothers):
-        '''
-                                    |
-                                    |
-                 +------------------+------------------+
-                 |                  |                  |
-                 |                  |                  |
-         +-------+-------+  +-------+-------+  +-------+-------+
-         |               |  |               |  |               |
-         |               |  |               |  |               |
-         +-------+-------+  +-------+-------+  +-------+-------+
-
-        '''
-        bar    = "         |         "
-        top    = " +-------+-------+ "
-        middle = " |               | "
-        bottom = " +---------------+ "
+        # endregion top
 
         print('')
-        stdout.write(' ' * int(len(brothers) * 19 / 2))
+        stdout.write(' ' * int(len(sons) * 19 / 2))
         stdout.write('|')
         print('')
-        stdout.write(' ' * int(len(brothers) * 19 / 2))
+        stdout.write(' ' * int(len(sons) * 19 / 2))
         stdout.write('|')
         
         print('')
         stdout.write(' ' * 9)
         stdout.write('+')
-        for _ in range(len(brothers) - 1):
+        for _ in range(len(sons) - 1):
             stdout.write('-' * 18 + '+')
         print('')
-        for _ in brothers:
+        for _ in sons:
             stdout.write(bar)
         print('')
-        for _ in brothers:
+        for _ in sons:
             stdout.write(bar)
+
+    '''
+        +-------+-------+  +-------+-------+  +-------+-------+  +-------+-------+
+        |               |  |               |  |               |  |               |
+        |               |  |               |  |               |  |               |
+        +---------------+  +---------------+  +---------------+  +-------+-------+
+
+    '''
+    def prtBrothers(self, brothers):
+        bar    = "         |         "
+        top    = " +-------+-------+ "
+        middle = " |               | "
+        bottom = " +---------------+ "
 
         # top
         print('')

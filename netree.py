@@ -28,29 +28,33 @@ if __name__ == '__main__':
 
     # print('\nDNS Server IP Address     :', '0.0.0.0')
 
-    # start_arp_scan = time()
     brothers = arp.scan()
     brothers_ips = [ip['ip-address'] for ip in brothers]
-    # end_arp_scan = time()
 
     brother_table = PrettyTable(['IP Address', 'MAC Address', 'Product'])
         
     for brother in brothers:
         brother_table.add_row([brother['ip-address'], brother['mac-address'], brother['product']])
     print(brother_table)
-    # print(int(end_arp_scan - start_arp_scan), 'sec')
     
     grandmother_ip = icmp.scan_grandmother()
-    mother_brothers, grand_router_address = icmp.scan_mother_brothers(grandmother_ip)
+    
+    if grandmother_ip is None:
+        grandmother_ip = 'CAN NOT FOUND'
+        mother_brothers = list()
+        grand_router_address = 'CAN NOT FOUND'
+    else:
+        mother_brothers, grand_router_address = icmp.scan_mother_brothers(grandmother_ip)
+
+        mother_brothers.remove(grandmother_ip)
+        mother_brothers.remove(grand_router_address)
 
     brothers_ips.remove(myinfo.gateway_ip)
-    mother_brothers.remove(grandmother_ip)
-    mother_brothers.remove(grand_router_address)
 
-    tree = Tree('',
-                grandmother_ip,
-                mother_brothers,
-                myinfo.gateway_ip,
-                grand_router_address,
-                brothers_ips)
+    tree = Tree(grandmother_ip1='CAN NOT FOUND',
+                grandmother_ip2=grandmother_ip,
+                mother_brothers=mother_brothers,
+                mother1        =myinfo.gateway_ip,
+                mother2        =grand_router_address,
+                brothers       =brothers_ips)
     tree.printTree()
