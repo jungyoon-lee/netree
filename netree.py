@@ -35,26 +35,32 @@ if __name__ == '__main__':
         
     for brother in brothers:
         brother_table.add_row([brother['ip-address'], brother['mac-address'], brother['product']])
-    print(brother_table)
     
     grandmother_ip = icmp.scan_grandmother()
     
     if grandmother_ip is None:
-        grandmother_ip = 'CAN NOT FOUND'
+        grandmother_ip = '   NOT FOUND'
         mother_brothers = list()
-        grand_router_address = 'CAN NOT FOUND'
+        grand_router_address = '   NOT FOUND'
     else:
         mother_brothers, grand_router_address = icmp.scan_mother_brothers(grandmother_ip)
+
+        mother_brothers_table = PrettyTable(['IP Address'])
+        for brother in mother_brothers:
+            mother_brothers_table.add_row([brother])
 
         mother_brothers.remove(grandmother_ip)
         mother_brothers.remove(grand_router_address)
 
     brothers_ips.remove(myinfo.gateway_ip)
 
-    tree = Tree(grandmother_ip1='CAN NOT FOUND',
+    tree = Tree(grandmother_ip1='   NOT FOUND',
                 grandmother_ip2=grandmother_ip,
                 mother_brothers=mother_brothers,
                 mother1        =myinfo.gateway_ip,
                 mother2        =grand_router_address,
                 brothers       =brothers_ips)
     tree.printTree()
+
+    print(mother_brothers_table)
+    print(brother_table)

@@ -76,6 +76,7 @@ class Tree:
 
 
     def printTree(self):
+        print("===============================================================================")
         self.prtGrandmother(ip1=self.grandmother_ip1, 
                             ip2=self.grandmother_ip2, 
                             start_pot1=self.start_pot1,
@@ -87,6 +88,7 @@ class Tree:
                        start_pot=self.start_pot2,
                        sons=self.brothers)
         self.prtBrothers(brothers=self.brothers)
+        print("===============================================================================")
 
     '''
                                                        ///////////////// 
@@ -222,24 +224,27 @@ class Tree:
             stdout.write(device_bottom)
         # endregion top
 
+        # |
+        # |
         print('')
         stdout.write(' ' * int(len(sons) * 19 / 2))
         stdout.write('|')
         print('')
         stdout.write(' ' * int(len(sons) * 19 / 2))
         stdout.write('|')
-        
-        print('')
-        stdout.write(' ' * 9)
-        stdout.write('+')
-        for _ in range(len(sons) - 1):
-            stdout.write('-' * 18 + '+')
-        print('')
-        for _ in sons:
-            stdout.write(bar)
-        print('')
-        for _ in sons:
-            stdout.write(bar)
+
+        if len(sons) > 1:
+            print('')
+            stdout.write(' ' * 9)
+            stdout.write('+')
+            for _ in range(len(sons) - 1):
+                stdout.write('-' * 18 + '+')
+            print('')
+            for _ in sons:
+                stdout.write(bar)
+            print('')
+            for _ in sons:
+                stdout.write(bar)
 
     '''
         +-------+-------+  +-------+-------+  +-------+-------+  +-------+-------+
@@ -249,7 +254,6 @@ class Tree:
 
     '''
     def prtBrothers(self, brothers):
-        bar    = "         |         "
         top    = " +-------+-------+ "
         middle = " |               | "
         bottom = " +---------------+ "
