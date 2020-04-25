@@ -5,7 +5,7 @@ from netifaces import gateways
 
 from netaddr import IPNetwork, IPAddress
 
-from uuid import getnode
+from urllib.request import urlopen
 
 from prettytable import PrettyTable
 
@@ -20,8 +20,9 @@ class MyInfo:
         self.subnetmask = self.get_subnetmask()
         self.prefix = self.get_prefix()
 
-        self.gateway_ip = self.get_gateway_info()[0]
-        
+        self.gateway_ip = self.get_gateway_info()
+        self.external_ip = urlopen('https://ident.me').read().decode('utf8')
+
 
     def get_os(self):
         return system() + ' ' + release()
@@ -59,16 +60,16 @@ class MyInfo:
                 
                 if choose_idx in idxes:
                     break
-            except Exception as error:
+            except Exception:
                 print('INPUT NUMBER ( 0 ~ ', len(idxes)-1, ')')
 
         return lan_cards[choose_idx]
 
     
     def get_gateway_info(self):
-        default = gateways()['default']
-
-        return default[2]
+        for gateway in gateways()[2]:
+            if gateway[1] == self.network_interface:
+                return gateway[0]
 
     
     def get_mac_address(self):
