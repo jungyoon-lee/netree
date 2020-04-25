@@ -1,5 +1,7 @@
 from os.path import dirname, abspath, isfile, join
+from colorama import init, Fore, Style
 from sys import stdout
+
 
 class Base:
     def __init__(self):
@@ -12,12 +14,29 @@ class Base:
             " _ __     ___   _| |_   _ __    __     __    \n" + \
             "| '_ \   / _ \ |_   _| | '__| / _ \  / _ \   \n" + \
             "| | | | (  __/   | |_  | |   (  __/ (  __/   \n" + \
-            "|_| |_|  \___|   |___| |_|    \___|  \___|   \n\n"
+            "|_| |_|  \___|   |___| |_|    \___|  \___|   \n"
 
 
     def print_banner(self):
-        print(self.get_banner())
+        green_banner = self.color_text('green', self.get_banner())
+        print(green_banner)
 
+
+    def color_text(self, color, string):
+        result_string = ''
+
+        if color == 'blue':
+            result_string += Style.BRIGHT + Fore.BLUE
+        elif color == 'red':
+            result_string += Style.BRIGHT + Fore.RED
+        elif color == 'green':
+            result_string += Style.BRIGHT + Fore.GREEN
+
+        result_string += string
+        result_string += Style.RESET_ALL
+
+        return result_string
+        
 
     def get_mac_prefixes(self, prefixes_filename='mac-prefixes.txt'):
         assert len(self.vendor_list) == 0, 'Vendor list already exist!'
@@ -58,12 +77,14 @@ class Base:
 
 
 class Tree:
-    def __init__(self, grandmother_ip1, 
+    def __init__(self, my_ip,
+                       grandmother_ip1, 
                        grandmother_ip2, 
                        mother_brothers, 
                        mother1,
                        mother2, 
                        brothers):
+        self.my_ip=my_ip
         self.grandmother_ip1 = grandmother_ip1
         self.grandmother_ip2 = grandmother_ip2
         self.mother_brothers = mother_brothers
@@ -74,23 +95,28 @@ class Tree:
         self.start_pot2 = int(len(self.brothers) * 19 / 2) - 9
         self.start_pot1 = self.start_pot2 + int((len(self.mother_brothers) + 1) * 19 / 2) - 9
 
+        self.base = Base()
+
 
     def printTree(self):
         print("===============================================================================")
-        self.prtGrandmother(ip1=self.grandmother_ip1, 
-                            ip2=self.grandmother_ip2, 
-                            start_pot1=self.start_pot1,
-                            start_pot2=self.start_pot2,
-                            sons=self.mother_brothers)
+        if self.grandmother_ip1 != self.mother2:
+            self.prtGrandmother(ip1=self.grandmother_ip1, 
+                                ip2=self.grandmother_ip2, 
+                                start_pot1=self.start_pot1,
+                                start_pot2=self.start_pot2,
+                                sons=self.mother_brothers)
         self.prtMother(ip1=self.mother1, 
                        ip2=self.mother2, 
                        brothers=self.mother_brothers, 
                        start_pot=self.start_pot2,
                        sons=self.brothers)
-        self.prtBrothers(brothers=self.brothers)
+        self.prtBrothers(my_ip=self.my_ip, brothers=self.brothers)
         print("===============================================================================")
 
-    '''
+    
+    def prtGrandmother(self, ip1, ip2, start_pot1, start_pot2, sons):
+        '''
                                                        ///////////////// 
                                                        /               /
                                                        /               /
@@ -100,9 +126,7 @@ class Tree:
                                             +------------------+------------------+
                                             |                  |                  |
                                             |                  |                  |
-
-    '''
-    def prtGrandmother(self, ip1, ip2, start_pot1, start_pot2, sons):
+        '''
         router_top    = " ///////////////// "
         router_middle = " /               / "
         router_bottom = " ///////////////// "
@@ -111,26 +135,26 @@ class Tree:
         # region top
         print('')
         stdout.write(' ' * start_pot1)
-        stdout.write(router_top)
+        stdout.write(self.base.color_text('blue', router_top))
 
         # middle
             # outer
         print('')
         stdout.write(' ' * start_pot1)
-        stdout.write(router_middle[:2])
-        stdout.write(ip1)
-        stdout.write(router_middle[len(ip1) + 2:])
+        stdout.write(self.base.color_text('blue', router_middle[:2]))
+        stdout.write(self.base.color_text('blue', ip1))
+        stdout.write(self.base.color_text('blue', router_middle[len(ip1) + 2:]))
             # router
         print('')
         stdout.write(' ' * start_pot1)
-        stdout.write(router_middle[:2])
-        stdout.write(ip2)
-        stdout.write(router_middle[len(ip2) + 2:])
+        stdout.write(self.base.color_text('blue', router_middle[:2]))
+        stdout.write(self.base.color_text('blue', ip2))
+        stdout.write(self.base.color_text('blue', router_middle[len(ip2) + 2:]))
 
         # bottom
         print('')
         stdout.write(' ' * start_pot1)
-        stdout.write(router_bottom)
+        stdout.write(self.base.color_text('blue', router_bottom))
         # endregion top
         
         #          |
@@ -163,7 +187,8 @@ class Tree:
                 stdout.write(bar)
 
 
-    '''
+    def prtMother(self, ip1, ip2, brothers, start_pot, sons):
+        '''
                                    /////////////////  +-------+-------+  +-------+-------+  
                                    /               /  |               |  |               | 
                                    /               /  |               |  |               |  
@@ -173,8 +198,7 @@ class Tree:
                 +------------------+------------------+------------------+
                 |                  |                  |                  |
                 |                  |                  |                  |
-    '''
-    def prtMother(self, ip1, ip2, brothers, start_pot, sons):
+        '''
         bar           = "         |         "
         router_top    = " ///////////////// "
         router_middle = " /               / "
@@ -186,7 +210,7 @@ class Tree:
         # region top
         print('')
         stdout.write(' ' * start_pot)
-        stdout.write(router_top)
+        stdout.write(self.base.color_text('blue', router_top))
         for _ in brothers:
             stdout.write(device_top)
 
@@ -194,9 +218,9 @@ class Tree:
             # router
         print('')
         stdout.write(' ' * start_pot)
-        stdout.write(router_middle[:2])
-        stdout.write(ip2)
-        stdout.write(router_middle[len(ip2) + 2:])
+        stdout.write(self.base.color_text('blue', router_middle[:2]))
+        stdout.write(self.base.color_text('blue', ip2))
+        stdout.write(self.base.color_text('blue', router_middle[len(ip2) + 2:]))
             # device
         for brother in brothers:
             stdout.write(device_middle[:2])
@@ -207,9 +231,9 @@ class Tree:
             # router
         print('')
         stdout.write(' ' * start_pot)
-        stdout.write(router_middle[:2])
-        stdout.write(ip1)
-        stdout.write(router_middle[len(ip1) + 2:])
+        stdout.write(self.base.color_text('blue', router_middle[:2]))
+        stdout.write(self.base.color_text('blue', ip1))
+        stdout.write(self.base.color_text('blue', router_middle[len(ip1) + 2:]))
             # device
         for _ in brothers:
             stdout.write(device_middle)
@@ -218,7 +242,7 @@ class Tree:
             # router
         print('')
         stdout.write(' ' * start_pot)
-        stdout.write(router_bottom)
+        stdout.write(self.base.color_text('blue', router_bottom))
             # device
         for _ in brothers:
             stdout.write(device_bottom)
@@ -246,36 +270,50 @@ class Tree:
             for _ in sons:
                 stdout.write(bar)
 
-    '''
+    
+    def prtBrothers(self, my_ip, brothers):
+        '''
         +-------+-------+  +-------+-------+  +-------+-------+  +-------+-------+
         |               |  |               |  |               |  |               |
         |               |  |               |  |               |  |               |
         +---------------+  +---------------+  +---------------+  +-------+-------+
-
-    '''
-    def prtBrothers(self, brothers):
+        '''
         top    = " +-------+-------+ "
         middle = " |               | "
         bottom = " +---------------+ "
 
         # top
         print('')
-        for _ in brothers:
-            stdout.write(top)
+        for brother_ip in brothers:
+            if brother_ip == my_ip:
+                stdout.write(self.base.color_text('red', top))
+            else:
+                stdout.write(top)
 
         # middle
         print('')
-        for _ in brothers:
-            stdout.write(middle)
+        for brother_ip in brothers:
+            if brother_ip == my_ip:
+                stdout.write(self.base.color_text('red', middle))
+            else:
+                stdout.write(middle)
 
         print('')
-        for ip in brothers:
-            stdout.write(middle[:2])
-            stdout.write(ip)
-            stdout.write(middle[len(ip) + 2:])
+        for brother_ip in brothers:
+            if brother_ip == my_ip:
+                stdout.write(self.base.color_text('red', middle[:2]))
+                stdout.write(self.base.color_text('red', brother_ip))
+                stdout.write(self.base.color_text('red', middle[len(brother_ip) + 2:]))
+            else:
+                stdout.write(middle[:2])
+                stdout.write(brother_ip)
+                stdout.write(middle[len(brother_ip) + 2:])
 
         # bottom
         print('')
-        for _ in range(len(brothers)):
-            stdout.write(bottom)
+        for brother_ip in brothers:
+            if brother_ip == my_ip:
+                stdout.write(self.base.color_text('red', bottom))
+            else:
+                stdout.write(bottom)
         print('')
