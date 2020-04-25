@@ -62,7 +62,7 @@ class IcmpScan:
 
         prefix_address = router_address[:dot+1]
 
-        addresses = [prefix_address + str(idx) for idx in range(start_index, end_index + 1)]
+        addresses = [prefix_address + str(idx) for idx in range(start_index, end_index)]
 
         tm = ThreadManager(2)
         tm.add_task(self.receive)

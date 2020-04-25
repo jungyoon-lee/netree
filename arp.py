@@ -1,5 +1,5 @@
 from base import Base
-from network import MyInfo
+from myinfo import MyInfo
 from packet import ArpPacket, EthernetPacket
 from tm import ThreadManager
 
