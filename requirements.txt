@@ -1,0 +1,7 @@
+colorama==0.4.3
+getmac==0.8.2
+ipaddress==1.0.23
+netaddr==0.7.19
+netifaces==0.10.9
+prettytable==0.7.2
+urllib3==1.25.8
