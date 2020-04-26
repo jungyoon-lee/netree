@@ -2,6 +2,22 @@
 
 ## Network Tree
 
-내가 사용하고 있는 네트워크 정보를 트리 형태로 표현하는 프로그램
+## INSTALL
+```
+$ sudo apt install python3 python3-pip
 
-ex) 내가 사용하고 있는 노트북은 공유기를 사용하고 공유기는 랜을 사용하고 랜은 아파트?
+$ pip3 install -r requirements.text
+```
+
+## RUN
+```
+$ sudo python3 netree.py
+```
+
+## - Router
+
+![](/image/1.JPG)
+
+## - Router in Router
+
+![](/image/2.JPG)
