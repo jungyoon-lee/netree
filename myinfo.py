@@ -9,9 +9,12 @@ from urllib.request import urlopen
 
 from prettytable import PrettyTable
 
+from base import Base
+
 
 class MyInfo:
     def __init__(self):
+        self.base = Base()
         self.os = self.get_os()
         self.network_interface = self.choose_network_interface()
         self.mac = self.get_mac_address()
@@ -30,7 +33,6 @@ class MyInfo:
 
     def choose_network_interface(self):
         lan_cards = interfaces()[1:]
-
         lan_card_table = PrettyTable(['Index', 'Lan Card', 'IP Address', 'MAC Address'])
 
         idxes = list()
@@ -47,7 +49,10 @@ class MyInfo:
             except Exception as error:
                 print(error)
 
-            lan_card_table.add_row([idx, lan_card, ip, mac])
+            lan_card_table.add_row([self.base.color_text('blue', str(idx)),
+                                    self.base.color_text('', lan_card),
+                                    self.base.color_text('', ip),
+                                    self.base.color_text('', mac)])
 
         print(lan_card_table)
 
@@ -56,7 +61,7 @@ class MyInfo:
 
         while True:
             try:
-                choose_idx = int(input('Choose Index : '))
+                choose_idx = int(input(self.base.color_text('blue', 'Choose Index : ')))
                 
                 if choose_idx in idxes:
                     break

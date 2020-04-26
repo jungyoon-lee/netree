@@ -16,12 +16,12 @@ if __name__ == '__main__':
     arp = ArpScan(myinfo)
     icmp = IcmpScan()
 
-    print('\nMy Network Interface      :', myinfo.network_interface)
-    print('My IP Address             :', base.color_text('red', myinfo.ip))
-    print('My MAC Address            :', myinfo.mac)
+    print('My Network Interface      :', base.color_text('yellow', myinfo.network_interface))
+    print(base.color_text('red', 'My IP Address             :'), base.color_text('red', myinfo.ip))
+    print('My MAC Address            :', base.color_text('yellow', myinfo.mac))
 
-    print('\nGateway IP Address        :', myinfo.gateway_ip)
-    print('External IP Address       :', myinfo.external_ip)
+    print('\nGateway IP Address        :', base.color_text('cyan', myinfo.gateway_ip))
+    print('External IP Address       :', base.color_text('magenta', myinfo.external_ip))
 
     print('Useable IP                :', myinfo.get_ip_by_index(2),
                                      '~',
@@ -44,10 +44,12 @@ if __name__ == '__main__':
         mother_brothers, grand_router_address = icmp.scan_mother_brothers(grandmother_ip)
         
         for brother_ip in mother_brothers:
-            if brother_ip == grand_router_address or brother_ip == grandmother_ip:
+            if brother_ip == myinfo.gateway_ip:
+                info_table.add_row([base.color_text('cyan', brother_ip), '', ''])
+            elif brother_ip == grand_router_address or brother_ip == grandmother_ip:
                 info_table.add_row([base.color_text('blue', brother_ip), '', ''])
             else:
-                info_table.add_row([brother_ip, '', ''])
+                info_table.add_row([base.color_text('green', brother_ip), '', ''])
 
         if grand_router_address == myinfo.ip:
             grand_router_address = myinfo.external_ip
@@ -63,14 +65,19 @@ if __name__ == '__main__':
         except Exception:
             pass
 
-    info_table.add_row(['', '', ''])
     for brother in brothers:
-        if brother['ip-address'] == myinfo.ip:
+        if brother['ip-address'] == myinfo.gateway_ip:
+            info_table.add_row([base.color_text('cyan', brother['ip-address']), 
+                                base.color_text('cyan', brother['mac-address']), 
+                                base.color_text('cyan', brother['product'])])
+        elif brother['ip-address'] == myinfo.ip:
             info_table.add_row([base.color_text('red', brother['ip-address']), 
                                 base.color_text('red', brother['mac-address']), 
                                 base.color_text('red', brother['product'])])
         else:
-            info_table.add_row([brother['ip-address'], brother['mac-address'], brother['product']])
+            info_table.add_row([base.color_text('green', brother['ip-address']), 
+                                base.color_text('green', brother['mac-address']), 
+                                base.color_text('green', brother['product'])])
 
     try:
         brothers_ips.remove(myinfo.gateway_ip)
@@ -81,8 +88,8 @@ if __name__ == '__main__':
                 grandmother_ip1=myinfo.external_ip,
                 grandmother_ip2=grandmother_ip,
                 mother_brothers=mother_brothers,
-                mother1        =myinfo.gateway_ip,
-                mother2        =grand_router_address,
+                mother1        =grand_router_address,
+                mother2        =myinfo.gateway_ip,
                 brothers       =brothers_ips)
     tree.printTree()
 
